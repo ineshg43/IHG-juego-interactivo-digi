@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PermisoApp 📱</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;overflow:hidden;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);height:100vh;width:100vw;position:relative;}
+.bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:0.25;animation:orbFloat 12s ease-in-out infinite;}
+.orb1{width:400px;height:400px;background:#7c3aed;top:-100px;left:-100px;animation-delay:0s;}
+.orb2{width:300px;height:300px;background:#2563eb;top:50%;right:-80px;animation-delay:-4s;}
+.orb3{width:350px;height:350px;background:#db2777;bottom:-100px;left:30%;animation-delay:-8s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-30px) scale(1.05);}66%{transform:translate(-20px,20px) scale(0.95);}}
+
+/* TÍTULO - texto puro sin recuadro */
+.game-title{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;
+  font-family:'Fredoka One',cursive;font-size:46px;letter-spacing:3px;
+  background:linear-gradient(90deg,#a78bfa,#60a5fa,#f472b6,#a78bfa);
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  white-space:nowrap;
+  animation:titleShine 3s linear infinite,titleBounce 2s ease-in-out infinite;
+  filter:drop-shadow(0 0 18px rgba(167,139,250,0.6));
+}
+@keyframes titleShine{0%{background-position:0%}100%{background-position:300%}}
+@keyframes titleBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+/* PANTALLAS */
+.screen{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:10;transition:opacity 0.5s,transform 0.5s;}
+.screen.hidden{opacity:0;transform:scale(0.92) translateY(20px);pointer-events:none;}
+.screen.slide-out-left{opacity:0;transform:translateX(-60px) scale(0.95);pointer-events:none;}
+.screen.slide-in-right{animation:slideInRight 0.55s cubic-bezier(.22,.61,.36,1) forwards;}
+@keyframes slideInRight{from{opacity:0;transform:translateX(60px) scale(0.95);}to{opacity:1;transform:translateX(0) scale(1);}}
+
+/* TARJETA */
+.card{
+  background:rgba(255,255,255,0.08);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.15);
+  width:90%;max-width:440px;padding:26px 24px 22px;border-radius:28px;text-align:center;color:white;
+  box-shadow:0 25px 60px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+  margin-top:70px;
+  animation:cardIn 0.6s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+/* ICONO APP (emoji sobre fondo degradado) */
+.app-img-wrap{position:relative;display:inline-block;margin:6px 0 10px;}
+.app-icon{
+  width:110px;height:110px;border-radius:26px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:56px;line-height:1;
+  box-shadow:0 8px 28px rgba(0,0,0,0.5);
+  border:2px solid rgba(255,255,255,0.25);
+  animation:imgPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+  transition:transform 0.3s;
+}
+.app-icon:hover{transform:scale(1.08) rotate(3deg);}
+@keyframes imgPop{from{transform:scale(0.4) rotate(-15deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+.app-glow{position:absolute;inset:-10px;border-radius:36px;filter:blur(18px);z-index:-1;animation:glowPulse 2s ease-in-out infinite;}
+@keyframes glowPulse{0%,100%{opacity:0.35;}50%{opacity:0.7;}}
+
+.app-title{font-family:'Fredoka One',cursive;font-size:26px;color:#e0e7ff;margin-bottom:4px;letter-spacing:1px;}
+.permission-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:7px 16px;font-size:14px;font-weight:700;color:#c7d2fe;margin:8px 0 12px;animation:badgeIn 0.4s cubic-bezier(.34,1.56,.64,1) 0.2s both;}
+@keyframes badgeIn{from{opacity:0;transform:scale(0.7);}to{opacity:1;transform:scale(1);}}
+.app-desc{font-size:13px;color:#a5b4fc;margin-bottom:13px;line-height:1.5;}
+
+/* BOTONES */
+.btn-row{display:flex;gap:10px;justify-content:center;margin-top:4px;}
+button{border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;border-radius:14px;transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden;}
+button:active{transform:scale(0.93)!important;}
+.btn-allow{background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:16px;padding:12px 22px;box-shadow:0 6px 20px rgba(16,185,129,0.45);}
+.btn-deny{background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-size:16px;padding:12px 22px;box-shadow:0 6px 20px rgba(239,68,68,0.45);}
+.btn-allow:hover{transform:scale(1.06) translateY(-2px);box-shadow:0 10px 28px rgba(16,185,129,0.65);}
+.btn-deny:hover{transform:scale(1.06) translateY(-2px);box-shadow:0 10px 28px rgba(239,68,68,0.65);}
+
+.start-btn{background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;font-size:21px;padding:16px 44px;border-radius:50px;letter-spacing:1px;box-shadow:0 8px 30px rgba(124,58,237,0.6);animation:startPulse 1.8s ease-in-out infinite;margin-top:16px;}
+@keyframes startPulse{0%,100%{transform:scale(1);box-shadow:0 8px 30px rgba(124,58,237,0.6);}50%{transform:scale(1.04);box-shadow:0 12px 45px rgba(124,58,237,0.9),0 0 55px rgba(96,165,250,0.4);}}
+.start-btn:hover{animation:none;transform:scale(1.08) translateY(-3px);box-shadow:0 16px 50px rgba(124,58,237,0.85);}
+.start-btn .bi{display:inline-block;margin-right:6px;transition:transform 0.4s;}
+.start-btn:hover .bi{transform:rotate(360deg);}
+
+/* PROGRESS */
+.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.progress-bar-bg{flex:1;height:7px;background:rgba(255,255,255,0.1);border-radius:50px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#7c3aed,#2563eb);transition:width 0.5s cubic-bezier(.22,.61,.36,1);}
+.progress-text{font-size:12px;color:#a5b4fc;font-weight:700;white-space:nowrap;}
+.score{font-size:18px;font-weight:800;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:11px;}
+.streak-badge{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-size:12px;font-weight:800;border-radius:50px;padding:2px 10px;margin-left:6px;}
+
+/* WELCOME */
+.welcome-title{font-family:'Fredoka One',cursive;font-size:30px;color:white;margin-bottom:6px;}
+.welcome-sub{font-size:14px;color:#a5b4fc;margin-bottom:4px;line-height:1.6;}
+.player-name-input{background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);color:white;font-size:16px;padding:11px 16px;border-radius:14px;text-align:center;width:100%;margin:12px 0;font-family:'Nunito',sans-serif;font-weight:700;transition:border-color 0.3s,box-shadow 0.3s;}
+.player-name-input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 18px rgba(124,58,237,0.4);}
+.player-name-input::placeholder{color:rgba(255,255,255,0.3);}
+
+/* LLUVIA */
+.rain-container{position:fixed;inset:0;z-index:20;pointer-events:none;overflow:hidden;}
+.drop{position:absolute;width:2px;background:linear-gradient(to bottom,transparent,rgba(130,200,255,0.9));border-radius:1px;animation:rainFall linear forwards;}
+@keyframes rainFall{0%{opacity:0;transform:translateY(0) skewX(-12deg);}10%{opacity:0.8;}90%{opacity:0.8;}100%{opacity:0;transform:translateY(110vh) skewX(-12deg);}}
+.splash{position:absolute;border-radius:50%;border:1.5px solid rgba(130,200,255,0.7);animation:splashAnim 0.35s ease-out forwards;}
+@keyframes splashAnim{0%{width:4px;height:4px;opacity:1;transform:scale(0);}100%{width:20px;height:20px;opacity:0;transform:scale(1);}}
+
+/* CONFETI */
+.confetti-container{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;}
+.confetti-p{position:absolute;animation:confFall linear forwards;transform-origin:center;}
+@keyframes confFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg);}100%{opacity:0;transform:translateY(110vh) rotate(var(--rot,720deg));}}
+
+/* FEEDBACK */
+.feedback-overlay{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.feedback-icon{font-size:88px;animation:feedbackPop 0.5s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0;}
+@keyframes feedbackPop{0%{opacity:0;transform:scale(0) rotate(-20deg);}60%{opacity:1;transform:scale(1.2) rotate(5deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
+.feedback-text{font-family:'Fredoka One',cursive;font-size:34px;color:white;text-shadow:0 4px 20px rgba(0,0,0,0.5);animation:feedbackSlide 0.5s ease 0.15s both;opacity:0;}
+@keyframes feedbackSlide{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* RESULTADO */
+.result-emoji{font-size:68px;margin-bottom:4px;animation:resultBounce 0.6s cubic-bezier(.34,1.56,.64,1);}
+@keyframes resultBounce{from{transform:scale(0) rotate(-30deg);}to{transform:scale(1) rotate(0);}}
+.result-title{font-family:'Fredoka One',cursive;font-size:27px;color:white;margin-bottom:4px;}
+.result-score-big{font-family:'Fredoka One',cursive;font-size:50px;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 14px rgba(251,191,36,0.5));margin:6px 0;}
+.result-msg{font-size:13px;color:#a5b4fc;margin-bottom:13px;}
+.result-stars{font-size:34px;letter-spacing:4px;margin-bottom:6px;animation:starsIn 0.5s ease 0.3s both;}
+@keyframes starsIn{from{opacity:0;transform:scale(0.5);}to{opacity:1;transform:scale(1);}}
+.btn-replay{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-size:16px;padding:12px 28px;border-radius:50px;box-shadow:0 6px 22px rgba(245,158,11,0.5);margin:6px;}
+.btn-replay:hover{transform:scale(1.07);}
+.btn-share{background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);color:white;font-size:14px;padding:10px 20px;border-radius:50px;margin:6px;}
+
+/* MUTE */
+.mute-btn{position:fixed;bottom:16px;right:16px;z-index:200;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);color:white;font-size:20px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,transform 0.2s;padding:0;}
+.mute-btn:hover{background:rgba(255,255,255,0.22);transform:scale(1.12);}
+
+/* FLASH */
+.flash{position:fixed;inset:0;z-index:40;pointer-events:none;animation:flashAnim 0.3s ease forwards;}
+@keyframes flashAnim{0%{opacity:0.4;}100%{opacity:0;}}
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+</div>
+
+<div class="game-title">PermisoApp 📱</div>
+
+<div class="rain-container" id="rainContainer"></div>
+<div class="confetti-container" id="confettiContainer"></div>
+<div class="feedback-overlay" id="feedbackOverlay"></div>
+
+<!-- BIENVENIDA -->
+<div class="screen" id="screenWelcome">
+  <div class="card">
+    <div style="font-size:54px;margin-bottom:8px">🔐</div>
+    <div class="welcome-title">¡Bienvenido/a!</div>
+    <p class="welcome-sub">¿Deberías dar este permiso a la app?<br>¡Decide rápido y acumula puntos!</p>
+    <input class="player-name-input" type="text" id="playerNameInput" placeholder="Tu nombre (opcional)" maxlength="18">
+    <button class="start-btn" onclick="startGame()"><span class="bi">🚀</span> ¡Jugar!</button>
+    <div style="margin-top:11px;font-size:12px;color:#6366f1;">⚡ 10 rondas &nbsp;·&nbsp; 🏆 Máxima puntuación</div>
+  </div>
+</div>
+
+<!-- JUEGO -->
+<div class="screen hidden" id="screenGame">
+  <div class="card">
+    <div class="progress-row">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progressText">0/10</span>
+    </div>
+    <div class="app-img-wrap">
+      <div class="app-glow" id="appGlow"></div>
+      <div class="app-icon" id="appIcon"></div>
+    </div>
+    <div class="app-title" id="appName"></div>
+    <div class="permission-badge"><span id="permissionText"></span></div>
+    <div class="app-desc" id="appDesc"></div>
+    <div class="btn-row">
+      <button class="btn-allow" onclick="answer(true)">✅ Permitir</button>
+      <button class="btn-deny" onclick="answer(false)">❌ Denegar</button>
+    </div>
+    <div class="score" id="scoreDisplay">Puntos: 0</div>
+  </div>
+</div>
+
+<!-- RESULTADO -->
+<div class="screen hidden" id="screenResult">
+  <div class="card">
+    <div class="result-emoji" id="resultEmoji">🏆</div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score-big" id="resultScoreBig"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="btn-replay" onclick="replayGame()">🔄 Jugar de nuevo</button>
+    <button class="btn-share" onclick="shareScore()">📤 Compartir</button>
+  </div>
+</div>
+
+<button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+
+<script>
+const APPS=[
+  {name:"Instagram",   icon:"📷", bg:"linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)", glow:"rgba(225,48,108,0.6)",  perm:"📷 Acceso a la Cámara",  desc:"Para hacer fotos y stories en directo",      correct:true},
+  {name:"Calculadora", icon:"🧮", bg:"linear-gradient(135deg,#1a73e8,#0d47a1)",                         glow:"rgba(26,115,232,0.55)", perm:"📍 Ubicación GPS",        desc:"Para hacer operaciones matemáticas básicas", correct:false},
+  {name:"Google Maps", icon:"🗺️", bg:"linear-gradient(135deg,#34a853,#1e8e3e)",                         glow:"rgba(52,168,83,0.6)",   perm:"📍 Ubicación GPS",        desc:"Para mostrarte rutas y lugares cercanos",    correct:true},
+  {name:"Linterna",    icon:"🔦", bg:"linear-gradient(135deg,#fbbf24,#d97706)",                         glow:"rgba(251,191,36,0.6)",  perm:"📞 Acceso a Contactos",   desc:"Para encender el flash del móvil",           correct:false},
+  {name:"WhatsApp",    icon:"💬", bg:"linear-gradient(135deg,#25d366,#128c7e)",                         glow:"rgba(37,211,102,0.6)",  perm:"🎙️ Micrófono",           desc:"Para mensajes de voz y llamadas",            correct:true},
+  {name:"Solitario",   icon:"🃏", bg:"linear-gradient(135deg,#ef4444,#991b1b)",                         glow:"rgba(239,68,68,0.55)",  perm:"📷 Acceso a la Cámara",  desc:"Para jugar al solitario offline",            correct:false},
+  {name:"Spotify",     icon:"🎵", bg:"linear-gradient(135deg,#1db954,#158a3e)",                         glow:"rgba(30,185,84,0.6)",   perm:"🎙️ Micrófono",           desc:"Para buscar canciones por voz",              correct:true},
+  {name:"Reloj",       icon:"⏰", bg:"linear-gradient(135deg,#f97316,#c2410c)",                         glow:"rgba(249,115,22,0.55)", perm:"📞 Realizar Llamadas",    desc:"Para poner alarmas y cronómetros",           correct:false},
+  {name:"Zoom",        icon:"🎥", bg:"linear-gradient(135deg,#2d8cff,#1a5fcc)",                         glow:"rgba(45,140,255,0.6)",  perm:"🎥 Cámara y Micrófono",  desc:"Para videollamadas y reuniones online",      correct:true},
+  {name:"Notas",       icon:"📝", bg:"linear-gradient(135deg,#fbbf24,#92400e)",                         glow:"rgba(251,191,36,0.55)", perm:"📍 Ubicación GPS",        desc:"Para escribir notas de texto",               correct:false},
+];
+
+let currentQ=0,score=0,streak=0,playerName='',muted=false,audioCtx=null;
+
+function getCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function note(freq,start,dur,vol,type){
+  vol=vol||0.22; type=type||'sine';
+  if(muted) return;
+  try{
+    const ctx=getCtx(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type=type; o.frequency.value=freq;
+    const t=ctx.currentTime+start;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.02);
+    g.gain.setValueAtTime(vol,t+Math.max(dur-0.04,0.01));
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
+}
+
+// Melodía alegre tipo "Happy" - Do Mayor con ritmo animado
+function playBgMusic(){
+  if(muted) return;
+  // Melodía: do-mi-sol-do-re-fa-la-re (arpegio alegre)
+  [[523,0],[659,0.18],[784,0.36],[1047,0.54],
+   [587,0.78],[698,0.96],[880,1.14],[1175,1.32],
+   [784,1.56],[988,1.74],[1175,1.92],[1047,2.1],
+   [523,2.34],[659,2.52],[784,2.7],[523,2.88]
+  ].forEach(([f,t])=>note(f,t,0.15,0.16,'sine'));
+  // Bajo alegre (corcheas)
+  [[131,0],[196,0.36],[165,0.78],[196,1.14],
+   [147,1.56],[196,1.92],[131,2.34],[196,2.7]
+  ].forEach(([f,t])=>note(f,t,0.3,0.1,'triangle'));
+  // Acordes de relleno brillantes
+  [[523,0.54],[659,0.54],[784,0.54]].forEach(([f,t])=>note(f,t,0.22,0.05,'sine'));
+  [[587,1.32],[698,1.32],[880,1.32]].forEach(([f,t])=>note(f,t,0.22,0.05,'sine'));
+  [[523,2.1],[659,2.1],[784,2.1]].forEach(([f,t])=>note(f,t,0.22,0.05,'sine'));
+}
+
+function playSuccess(){
+  if(muted) return;
+  [[523,0,0.1,0.28],[659,0.1,0.1,0.28],[784,0.2,0.1,0.28],[1047,0.3,0.25,0.35]].forEach(([f,t,d,v])=>note(f,t,d,v,'sine'));
+  [[523,0.3,0.25,0.1],[659,0.3,0.25,0.1]].forEach(([f,t,d,v])=>note(f,t,d,v,'triangle'));
+}
+
+function playError(){
+  if(muted) return;
+  [[280,0,0.09,0.28],[220,0.1,0.09,0.28],[160,0.2,0.2,0.22]].forEach(([f,t,d,v])=>note(f,t,d,v,'sawtooth'));
+}
+
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+}
+
+function showScreen(id,fromId){
+  if(fromId){
+    const f=document.getElementById(fromId);
+    f.classList.add('slide-out-left');
+    setTimeout(()=>{
+      f.classList.add('hidden'); f.classList.remove('slide-out-left');
+      const el=document.getElementById(id);
+      el.classList.remove('hidden'); el.classList.add('slide-in-right');
+      setTimeout(()=>el.classList.remove('slide-in-right'),600);
+    },380);
+  } else {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+    const el=document.getElementById(id);
+    el.classList.remove('hidden'); el.classList.add('slide-in-right');
+    setTimeout(()=>el.classList.remove('slide-in-right'),600);
+  }
+}
+
+function startGame(){
+  playerName=document.getElementById('playerNameInput').value.trim()||'Jugador';
+  currentQ=0; score=0; streak=0;
+  playBgMusic();
+  showScreen('screenGame','screenWelcome');
+  setTimeout(loadQuestion,460);
+}
+
+function loadQuestion(){
+  if(currentQ>=APPS.length){ endGame(); return; }
+  const app=APPS[currentQ];
+  const icon=document.getElementById('appIcon');
+  icon.style.animation='none'; void icon.offsetWidth;
+  icon.style.animation='imgPop 0.5s cubic-bezier(.34,1.56,.64,1) both';
+  icon.textContent=app.icon;
+  icon.style.background=app.bg;
+  document.getElementById('appGlow').style.background=app.glow;
+  document.getElementById('appName').textContent=app.name;
+  document.getElementById('permissionText').textContent=app.perm;
+  document.getElementById('appDesc').textContent='→ '+app.desc;
+  const pct=Math.round((currentQ/APPS.length)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressText').textContent=currentQ+'/'+APPS.length;
+  document.getElementById('scoreDisplay').innerHTML='Puntos: '+score+(streak>=2?' <span class="streak-badge">🔥 x'+streak+'</span>':'');
+}
+
+function answer(allowed){
+  const app=APPS[currentQ];
+  const correct=(allowed===app.correct);
+  if(correct){
+    streak++;
+    const bonus=streak>=3?20:10;
+    score+=bonus;
+    playSuccess();
+    showFeedback('✅',streak>=3?'¡COMBO ×'+streak+'! +'+bonus:'¡Correcto! +'+bonus,'#10b981');
+    flashScreen('rgba(16,185,129,0.15)');
+    if(streak>=3) spawnConfetti();
+  } else {
+    streak=0; score=Math.max(0,score-5);
+    playError();
+    showFeedback('❌','¡Incorrecto! −5','#ef4444');
+    flashScreen('rgba(239,68,68,0.15)');
+    spawnRain();
+  }
+  currentQ++;
+  setTimeout(()=>{ hideFeedback(); loadQuestion(); if(currentQ<APPS.length) playBgMusic(); },950);
+}
+
+function showFeedback(icon,text,color){
+  document.getElementById('feedbackOverlay').innerHTML=
+    '<div class="feedback-icon">'+icon+'</div><div class="feedback-text" style="color:'+color+'">'+text+'</div>';
+}
+function hideFeedback(){ document.getElementById('feedbackOverlay').innerHTML=''; }
+
+function flashScreen(color){
+  const f=document.createElement('div');
+  f.className='flash'; f.style.background=color;
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(),320);
+}
+
+function spawnRain(){
+  const rc=document.getElementById('rainContainer');
+  for(let i=0;i<45;i++){
+    setTimeout(()=>{
+      const d=document.createElement('div'); d.className='drop';
+      const x=Math.random()*100, h=28+Math.random()*55, dur=0.45+Math.random()*0.65;
+      d.style.cssText='left:'+x+'vw;top:-60px;height:'+h+'px;animation-duration:'+dur+'s';
+      rc.appendChild(d);
+      setTimeout(()=>{
+        const s=document.createElement('div'); s.className='splash';
+        s.style.cssText='left:'+x+'vw;top:90vh;margin:-10px 0 0 -10px';
+        rc.appendChild(s);
+        setTimeout(()=>s.remove(),380); d.remove();
+      },dur*1000);
+    },i*28);
+  }
+}
+
+function spawnConfetti(){
+  const cc=document.getElementById('confettiContainer');
+  const colors=['#f59e0b','#10b981','#7c3aed','#ef4444','#3b82f6','#ec4899','#84cc16','#06b6d4','#f472b6'];
+  const shapes=['■','●','▲','◆','★','♦','❋'];
+  for(let i=0;i<65;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div'); p.className='confetti-p';
+      p.textContent=shapes[i%shapes.length];
+      const x=Math.random()*100, dur=1.3+Math.random()*1.4;
+      const rot=(Math.random()>.5?1:-1)*(400+Math.random()*400);
+      p.style.cssText='left:'+x+'vw;top:-30px;color:'+colors[i%colors.length]+';font-size:'+(13+Math.random()*17)+'px;animation-duration:'+dur+'s;animation-delay:'+(Math.random()*0.35)+'s';
+      p.style.setProperty('--rot',rot+'deg');
+      cc.appendChild(p);
+      setTimeout(()=>p.remove(),(dur+0.6)*1000);
+    },i*18);
+  }
+}
+
+function endGame(){
+  const pct=score/(APPS.length*20);
+  let emoji,title,stars,msg;
+  if(pct>=0.9){emoji='🏆';title='¡EXPERTO EN PRIVACIDAD!';stars='⭐⭐⭐';msg='Impresionante '+playerName+', ¡conoces perfectamente los permisos!';}
+  else if(pct>=0.6){emoji='🥈';title='¡Muy bien, '+playerName+'!';stars='⭐⭐';msg='Tienes buen instinto. ¡Sigue mejorando!';}
+  else{emoji='🎓';title='¡Sigue aprendiendo!';stars='⭐';msg='Cada error es una lección. ¡Inténtalo de nuevo!';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultStars').textContent=stars;
+  document.getElementById('resultScoreBig').textContent=score+' pts';
+  document.getElementById('resultMsg').textContent=msg;
+  showScreen('screenResult','screenGame');
+  setTimeout(()=>{
+    spawnConfetti(); spawnConfetti();
+    if(!muted){
+      [[523,0.2,0.22,0.3],[659,0.45,0.22,0.3],[784,0.7,0.22,0.3],[1047,0.95,0.25,0.35],[1319,1.2,0.4,0.4]]
+        .forEach(([f,t,d,v])=>note(f,t,d,v,'sine'));
+    }
+  },450);
+}
+
+function replayGame(){ showScreen('screenWelcome','screenResult'); }
+
+function shareScore(){
+  const txt='¡Conseguí '+score+' puntos en PermisoApp! 📱🔐 ¿Puedes superarme?';
+  if(navigator.share) navigator.share({text:txt});
+  else{ navigator.clipboard.writeText(txt).catch(()=>{}); alert('¡Copiado al portapapeles!'); }
+}
+</script>
+</body>
+</html>
